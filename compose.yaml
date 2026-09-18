@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: bakery-postgres
+
+    environment:
+      POSTGRES_DB: bakery_inventory
+      POSTGRES_USER: bakery
+      POSTGRES_PASSWORD: bakery123
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
