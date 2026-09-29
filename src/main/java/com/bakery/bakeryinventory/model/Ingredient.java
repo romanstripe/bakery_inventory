@@ -13,7 +13,6 @@ public class Ingredient {
     private Long id;
 
     private String name;
-    private int stock;
 
     public Ingredient() {
     }
@@ -30,11 +29,4 @@ public class Ingredient {
         this.name = name;
     }
 
-    public int getStock() {
-        return stock;
-    }
-
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
 }

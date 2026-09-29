@@ -1,0 +1,12 @@
+POST http://localhost:8080/ingredients
+Content-Type: application/json; charset=UTF-8
+
+{
+  "name": "A사 박력분"
+}
+
+###
+GET http://localhost:8080/ingredients
+
+###
+GET http://localhost:8080/inventories
