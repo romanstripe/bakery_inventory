@@ -1,8 +1,8 @@
-POST http://localhost:8080/ingredients
+POST http://localhost:8080/ingredients/1
 Content-Type: application/json; charset=UTF-8
 
 {
-  "name": "A사 박력분"
+  "quantity": 10
 }
 
 ###

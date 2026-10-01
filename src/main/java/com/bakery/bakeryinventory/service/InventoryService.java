@@ -20,4 +20,11 @@ public class InventoryService {
     public Inventory createInventory(Inventory inventory){
         return inventoryRepository.save(inventory);
     }
+
+    public Inventory updateQuantity(Long id, int quantity){
+        Inventory inventory = inventoryRepository.findById(id).orElseThrow();
+        inventory.setQuantity(quantity);
+
+        return inventoryRepository.save(inventory);
+    }
 }
