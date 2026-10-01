@@ -1,5 +1,6 @@
 package com.bakery.bakeryinventory.service;
 
+import com.bakery.bakeryinventory.exception.InvalidInventoryQuantityException;
 import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.repository.InventoryRepository;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class InventoryService {
     public Inventory updateQuantity(Long id, int quantity){
 
         if(quantity < 0){
-            throw new IllegalArgumentException("Stock amount cannot be less than 0.");
+            throw new InvalidInventoryQuantityException("Stock amount cannot be less than 0.");
         }
 
         Inventory inventory = inventoryRepository.findById(id).orElseThrow();
