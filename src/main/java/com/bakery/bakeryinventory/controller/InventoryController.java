@@ -22,11 +22,23 @@ public class InventoryController {
         this.inventoryService = inventoryService;
     }
 
+    /*
+     모든 재고를 조회한다.
+     반환값: 재고 목록
+     */
     @GetMapping("/inventories")
     public List<Inventory> getInventories(){
         return inventoryService.getInventories();
     }
 
+    /*
+     경로 변수로 지정한 재고의 수량을 요청 값으로 변경한다.
+     요청 DTO를 검증한 뒤 서비스에 재고 수정을 위임한다.
+
+     id: 수정할 재고 ID
+     request: 변경할 수량을 담은 요청 DTO
+     반환값: 수정된 Inventory
+     */
     @PatchMapping("/inventories/{id}")
     public Inventory updateQuantity(
             @PathVariable Long id,

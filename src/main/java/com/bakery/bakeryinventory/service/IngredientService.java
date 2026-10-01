@@ -21,12 +21,22 @@ public class IngredientService {
         this.inventoryRepository = inventoryRepository;
     }
 
+    /*
+     등록된 모든 재료를 조회한다.
+     반환값: 재료 목록
+     */
     public List<Ingredient> getIngredients(){
         return ingredientRepository.findAll();
     }
 
+    /*
+     재료를 저장하고 해당 재료에 연결된 수량 0의 초기 재고를 생성한다.
+     두 저장을 하나의 트랜잭션으로 처리해 재고 생성 실패 시 재료만 남지 않도록 한다.
+
+     ingredient: 저장할 재료 정보
+     반환값: 저장된 재료
+     */
     @Transactional
-    //하나의 묶음으로 병렬 처리
     public Ingredient createIngredient(Ingredient ingredient){
         Ingredient savedIngredient = ingredientRepository.save(ingredient);
 
