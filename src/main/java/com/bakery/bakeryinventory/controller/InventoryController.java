@@ -1,5 +1,6 @@
 package com.bakery.bakeryinventory.controller;
 
+import com.bakery.bakeryinventory.dto.InventoryQuantityRequest;
 import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.service.InventoryService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class InventoryController {
@@ -28,8 +28,9 @@ public class InventoryController {
     @PatchMapping("/inventories/{id}")
     public Inventory updateQuantity(
             @PathVariable Long id,
-            @RequestBody Map<String, Integer> request
+            @RequestBody InventoryQuantityRequest request
     ){
-        return inventoryService.updateQuantity(id, request.get("quantity"));
+        return inventoryService.updateQuantity(
+                id, request.getQuantity());
     }
 }
