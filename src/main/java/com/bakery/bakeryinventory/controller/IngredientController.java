@@ -16,9 +16,8 @@ public class IngredientController {
     }
 
     /*
-     등록된 모든 재료를 서비스에서 조회해 응답한다.
-
-     @return 등록된 재료 목록, 없으면 빈 목록
+     등록된 모든 재료를 조회한다.
+     반환값: 재료 목록
      */
     @GetMapping("/ingredients")
     public List<Ingredient> getIngredients(){
@@ -28,8 +27,8 @@ public class IngredientController {
     /*
      요청 본문의 재료를 등록하고 수량 0의 초기 재고 생성을 서비스에 위임한다.
 
-     @param ingredient 요청 본문에서 변환된 재료 정보
-     @return 저장된 재료
+     ingredient: 요청 본문에서 변환된 재료 정보
+     반환값: 저장된 재료
      */
     @PostMapping("/ingredients")
     public Ingredient createIngredient(
