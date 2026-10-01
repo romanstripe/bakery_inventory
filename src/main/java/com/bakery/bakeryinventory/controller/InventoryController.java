@@ -1,5 +1,7 @@
 package com.bakery.bakeryinventory.controller;
 
+import jakarta.validation.Valid;
+
 import com.bakery.bakeryinventory.dto.InventoryQuantityRequest;
 import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.service.InventoryService;
@@ -28,7 +30,7 @@ public class InventoryController {
     @PatchMapping("/inventories/{id}")
     public Inventory updateQuantity(
             @PathVariable Long id,
-            @RequestBody InventoryQuantityRequest request
+            @Valid @RequestBody InventoryQuantityRequest request //검증 추가
     ){
         return inventoryService.updateQuantity(
                 id, request.getQuantity());
