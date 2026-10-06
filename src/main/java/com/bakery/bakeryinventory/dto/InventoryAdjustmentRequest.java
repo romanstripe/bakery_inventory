@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Positive;
 
 public class InventoryAdjustmentRequest {
 
-    @NotNull
-    @Positive
+    @NotNull(message = "quantity is required.")
+    @Positive(message = "quantity must be greater than 0.")
     private Integer quantity;
 
     public Integer getQuantity(){
