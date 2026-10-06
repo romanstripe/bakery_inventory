@@ -1,6 +1,7 @@
 package com.bakery.bakeryinventory.service;
 
 import com.bakery.bakeryinventory.exception.InvalidInventoryQuantityException;
+import com.bakery.bakeryinventory.exception.InventoryNotFoundException;
 import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.repository.InventoryRepository;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class InventoryService {
      반환값: 저장된 재고
      */
     public Inventory createInventory(Inventory inventory){
+
         return inventoryRepository.save(inventory);
     }
 
@@ -47,15 +49,20 @@ public class InventoryService {
             throw new InvalidInventoryQuantityException("Stock amount cannot be less than 0.");
         }
 
-        Inventory inventory = inventoryRepository.findById(id).orElseThrow();
+        Inventory inventory = inventoryRepository.findById(id)
+                .orElseThrow(()-> new InventoryNotFoundException(
+                        "Cannot find that stock."
+                ));
 
         inventory.setQuantity(quantity);
 
         return inventoryRepository.save(inventory);
     }
 
+
     /*
     현재 재고 수량에 전달받은 수량을 더해 저장한다.
+    지정한 ID의 재고가 없으면 InventoryNotFoundException을 발생시킨다.
     기존 재고 값을 조회한 뒤, 증가분을 더해 새로운 재고 수량을 계산한다.
 
     id: 수량을 증고시킬 재고 ID
@@ -64,7 +71,10 @@ public class InventoryService {
     */
     public Inventory increaseQuantity(Long id, int quantity){
 
-        Inventory inventory = inventoryRepository.findById(id).orElseThrow();
+        Inventory inventory = inventoryRepository.findById(id)
+                .orElseThrow(()-> new InventoryNotFoundException(
+                        "Cannot find that stock."
+                ));
 
         inventory.setQuantity(
                 inventory.getQuantity() + quantity
@@ -76,6 +86,7 @@ public class InventoryService {
 
     /*
     현재 재고 수량에서 전달받은 수량을 차감해 저장한다.
+    지정한 ID의 재고가 없으면 InventoryNotFoundException을 발생시킨다.
     차감 후 재고가 0보다 작아지는 경우 예외를 발생시켜 저장하지 않는다.
 
     id: 수량을 차감할 재고 ID
@@ -84,7 +95,10 @@ public class InventoryService {
     */
     public Inventory decreaseQuantity(Long id, int quantity){
 
-        Inventory inventory = inventoryRepository.findById(id).orElseThrow();
+        Inventory inventory = inventoryRepository.findById(id)
+                .orElseThrow(()-> new InventoryNotFoundException(
+                        "Cannot find that stock."
+                ));
 
         int newQuantity = inventory.getQuantity() - quantity;
 

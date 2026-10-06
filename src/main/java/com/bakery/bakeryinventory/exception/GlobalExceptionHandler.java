@@ -9,6 +9,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(InvalidInventoryQuantityException.class)
     public ResponseEntity<Map<String, String>> handleInvalidInventoryQuantity(
             InvalidInventoryQuantityException exception
@@ -20,4 +21,14 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(InventoryNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleInventoryNotFound(
+            InventoryNotFoundException exception
+    ){
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "message", exception.getMessage()
+                ));
+    }
 }
