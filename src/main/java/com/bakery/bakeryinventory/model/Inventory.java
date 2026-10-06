@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 
 @Entity
 public class Inventory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     //one inventory to one ingredient
     @JoinColumn(name = "ingredient_id")
     //using ingredient id as column to inventory DB

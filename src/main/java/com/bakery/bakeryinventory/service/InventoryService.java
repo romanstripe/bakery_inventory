@@ -17,11 +17,13 @@ public class InventoryService {
     }
 
     /*
-     모든 재고를 조회한다.
-     반환값: 재고 목록
+     모든 재고와 연결된 재료 정보를 함께 조회한다.
+
+     반환값: Ingredient 정보가 포함된 Inventory 목록
      */
     public List<Inventory> getInventories(){
-        return inventoryRepository.findAll();
+
+        return inventoryRepository.findAllWithIngredient();
     }
 
     /*
