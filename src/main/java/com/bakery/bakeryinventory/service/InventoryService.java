@@ -51,7 +51,7 @@ public class InventoryService {
 
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(()-> new InventoryNotFoundException(
-                        "Cannot find that stock."
+                        "Cannot find that item."
                 ));
 
         inventory.setQuantity(quantity);
@@ -73,7 +73,7 @@ public class InventoryService {
 
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(()-> new InventoryNotFoundException(
-                        "Cannot find that stock."
+                        "Cannot find that item."
                 ));
 
         inventory.setQuantity(
@@ -97,7 +97,7 @@ public class InventoryService {
 
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(()-> new InventoryNotFoundException(
-                        "Cannot find that stock."
+                        "Cannot find that item."
                 ));
 
         int newQuantity = inventory.getQuantity() - quantity;
