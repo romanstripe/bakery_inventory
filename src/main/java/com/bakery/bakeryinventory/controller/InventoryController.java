@@ -1,7 +1,7 @@
 package com.bakery.bakeryinventory.controller;
 
 import jakarta.validation.Valid;
-
+import com.bakery.bakeryinventory.dto.InventoryAdjustmentRequest;
 import com.bakery.bakeryinventory.dto.InventoryQuantityRequest;
 import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.service.InventoryService;
@@ -51,8 +51,8 @@ public class InventoryController {
 
 
     /*
-    경로 변수로 지정한 재고의 현재 수량에 요청 DTO 의 수량을 더한다.
-    재고 조회와 수량 증가는 서비스에 위임한다.
+    경로 변수로 지정한 재고의 현재 수량에 요청 수량을 더한다.
+    증가량은 1 이상인 값만 허용하고 실제 수량 변경은 서비스에 위임한다.
 
     id: 수량을 증가시킬 재고 ID
     request: 추가할 수량을 담은 요청 DTO
@@ -61,7 +61,7 @@ public class InventoryController {
     @PatchMapping("/inventories/{id}/increase")
     public Inventory increaseQuantity(
             @PathVariable Long id,
-            @Valid @RequestBody InventoryQuantityRequest request
+            @Valid @RequestBody InventoryAdjustmentRequest request
     ){
         return inventoryService.increaseQuantity(
                 id,
@@ -71,8 +71,8 @@ public class InventoryController {
 
 
     /*
-    경로 변수로 지정한 재고의 현재 수량에서 요청 DTO 의 수량을 차감한다.
-    차감 결과가 음수가 되는 경우 서비스에서 예외를 발생시킨다.
+    경로 변수로 지정한 재고의 현재 수량에서 요청 수량을 차감한다.
+    차감량은 1 이상인 값만 허용하며, 현재 재고보다 많이 차감하면 서비스에서 예외를 발생시킨다.
 
     id: 수량을 차감할 재고 ID
     request: 차감할 수량을 담은 요청 DTO
@@ -81,7 +81,7 @@ public class InventoryController {
     @PatchMapping("/inventories/{id}/decrease")
     public Inventory decreaseQuantity(
             @PathVariable Long id,
-            @Valid @RequestBody InventoryQuantityRequest request
+            @Valid @RequestBody InventoryAdjustmentRequest request
     ){
         return inventoryService.decreaseQuantity(
                 id,
