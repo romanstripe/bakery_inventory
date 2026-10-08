@@ -5,6 +5,7 @@ import com.bakery.bakeryinventory.exception.InventoryNotFoundException;
 import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.repository.InventoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -71,9 +72,10 @@ public class InventoryService {
     quantity: 추가할 재고 수량
     반환값: 수량이 증가된 Inventory
     */
+    @Transactional
     public Inventory increaseQuantity(Long id, int quantity){
 
-        Inventory inventory = inventoryRepository.findById(id)
+        Inventory inventory = inventoryRepository.findByIdForUpdate(id)
                 .orElseThrow(()-> new InventoryNotFoundException(
                         "Cannot find that item."
                 ));
@@ -95,9 +97,10 @@ public class InventoryService {
     quantity: 차감할 재고 수량
     반환값: 수량이 차감된 Inventory
     */
+    @Transactional
     public Inventory decreaseQuantity(Long id, int quantity){
 
-        Inventory inventory = inventoryRepository.findById(id)
+        Inventory inventory = inventoryRepository.findByIdForUpdate(id)
                 .orElseThrow(()-> new InventoryNotFoundException(
                         "Cannot find that item."
                 ));
