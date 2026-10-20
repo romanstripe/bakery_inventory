@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.repository.query.Param;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,5 +34,17 @@ public interface InventoryRepository
     @Query("SELECT i FROM Inventory i WHERE i.id = :id")
     Optional<Inventory> findByIdForUpdate(@Param("id") Long id);
 
+    /*
+    재료 ID로 연결된 재고를 조회하고 비관적 락을 적용한다.
+    입고 수량을 반영할 재고를 찾을 때 사용한다.
+
+    ingredientId: 입고된 재료의 ID
+    반환값: 해당 재료의 재고를 담은 Optional, 없으면 빈 Optional
+    */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT i FROM Inventory i WHERE i.ingredient.id = :ingredientId")
+    Optional<Inventory> findByIngredientIdForUpdate(
+            @Param("ingredientId") Long ingredientId
+    );
 }
 

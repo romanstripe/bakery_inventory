@@ -35,7 +35,7 @@ class InventoryServiceTest {
         Inventory inventory = new Inventory();
         inventory.setQuantity(10);
         
-        Mockito.when(inventoryRepository.findById(1L))
+        Mockito.when(inventoryRepository.findByIdForUpdate(1L))
                 .thenReturn(Optional.of(inventory));
         
         Mockito.when(inventoryRepository.save(inventory))
@@ -62,7 +62,7 @@ class InventoryServiceTest {
         Inventory inventory = new Inventory();
         inventory.setQuantity(10);
 
-        Mockito.when(inventoryRepository.findById(1L))
+        Mockito.when(inventoryRepository.findByIdForUpdate(1L))
                 .thenReturn(Optional.of(inventory));
 
         Mockito.when(inventoryRepository.save(inventory))
@@ -89,7 +89,7 @@ class InventoryServiceTest {
         Inventory inventory = new Inventory();
         inventory.setQuantity(10);
 
-        Mockito.when(inventoryRepository.findById(1L))
+        Mockito.when(inventoryRepository.findByIdForUpdate(1L))
                 .thenReturn(Optional.of(inventory));
 
         //when & then
