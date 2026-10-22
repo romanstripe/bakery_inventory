@@ -38,7 +38,7 @@ public class InboundService {
     @Transactional
     public Inbound createInbound(Long ingredientId, int quantity){
         Inventory inventory = inventoryRepository
-                .findByIdForUpdate(ingredientId)
+                .findByIngredientIdForUpdate(ingredientId)
                 .orElseThrow(() -> new InventoryNotFoundException(
                         "해당 재료의 재고를 찾을 수 없습니다. "
                 ));
