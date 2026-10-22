@@ -2,6 +2,7 @@
   Backstage Design System (Figma) 스타일을 CSS 변수로 옮긴 값.
   색상: UI / *, Brand / * 페인트 스타일
   타이포: Heading 2(24), Heading 3(18), Body 2(14), Caption(12), Label 2(12)
+         크기·굵기·행간은 키트 값을 따르고, 글꼴은 Helvetica Neue 대신 Pretendard를 사용한다.
   그림자: Elevation Shadow
 */
 :root {
@@ -28,7 +29,8 @@
     0 1px 3px rgba(0, 0, 0, 0.2);
   --radius: 4px;
 
-  --font: 'Helvetica Neue', Helvetica, Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+    'Malgun Gothic', sans-serif;
 
   font-family: var(--font);
   font-weight: 500;
