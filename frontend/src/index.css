@@ -94,6 +94,15 @@ select {
   color: var(--ui-gray-40);
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 /* ---------- 앱 레이아웃: Navigation A / Mini, Home / Header, Home / Tabs ---------- */
 .app {
   display: flex;
@@ -216,6 +225,10 @@ select {
   min-height: 94px;
   padding: 20px 16px 16px 20px;
   border-bottom: 1px solid var(--divider);
+}
+
+.card__header > h3 {
+  align-self: flex-start;
 }
 
 .card__body {
@@ -431,6 +444,11 @@ select.field__control {
   background: none;
   color: var(--ui-blue);
   cursor: pointer;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  text-decoration: underline;
 }
 
 /* ---------- 배너 (Form Validation / Nondismissable Banner 색상 체계) ---------- */
@@ -444,6 +462,11 @@ select.field__control {
   color: var(--ui-white);
   font-size: 14px;
   line-height: 20px;
+}
+
+.banner .text-link {
+  color: inherit;
+  white-space: nowrap;
 }
 
 .banner--error {
