@@ -1,5 +1,6 @@
 package com.bakery.bakeryinventory.service;
 
+import com.bakery.bakeryinventory.dto.InboundQueryResponse;
 import com.bakery.bakeryinventory.exception.InventoryNotFoundException;
 import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.model.Inbound;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class InboundService {
@@ -50,5 +52,29 @@ public class InboundService {
         );
 
         return inboundRepository.save(inbound);
+    }
+
+    /*
+    재료 ID가 없으면 전체 입고 이력을 조회한다.
+    재료 ID가 있으면 해당 재료의 입고 이력만 조회한다.
+    조회한 기록을 응답 DTO로 변환한다.
+
+    ingredientId: 조회할 재료 ID, null이면 전체 조회
+    반환값: 최근 입고 순으로 정렬된 입고 응답 목록
+    */
+    @Transactional(readOnly = true)
+    public List<InboundQueryResponse> getInbounds(Long ingredientId){
+        List<Inbound> inbounds;
+
+        if(ingredientId == null){
+            inbounds = inboundRepository.findAllWithIngredient();
+        }else{
+            inbounds = inboundRepository
+                    .findAllByIngredientIdWithIngredient(ingredientId);
+        }
+
+        return inbounds.stream()
+                .map(InboundQueryResponse::from)
+                .toList();
     }
 }

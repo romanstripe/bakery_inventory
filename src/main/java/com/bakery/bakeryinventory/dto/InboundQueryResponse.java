@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 public record InboundQueryResponse(
         Long id,
         Long ingredientId,
-        String ingredeintName,
+        String ingredientName,
         int quantity,
-        LocalDateTime receicedAt
+        LocalDateTime receivedAt
 ){
     /*
     입고 엔티티를 조회 응답 DTO로 변환한다.
