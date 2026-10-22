@@ -293,6 +293,33 @@ select {
   color: var(--ui-gray-40);
 }
 
+/* ---------- 폼 카드 (Form Validation > Form / Content / Section) ---------- */
+.form-card {
+  padding: 0;
+}
+
+.form-card__section {
+  padding: 24px 32px 8px;
+}
+
+.form-card__section > p {
+  margin-top: 14px;
+}
+
+.form-card__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 13px;
+  margin-top: 28px;
+}
+
+.form-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 24px 32px 32px;
+}
+
 /* ---------- 검색 (Table header Search) ---------- */
 .search {
   display: flex;
