@@ -2,10 +2,10 @@ package com.bakery.bakeryinventory.service;
 
 import com.bakery.bakeryinventory.model.Ingredient;
 import com.bakery.bakeryinventory.model.Inventory;
-import com.bakery.bakeryinventory.model.Receipt;
+import com.bakery.bakeryinventory.model.Inbound;
 import com.bakery.bakeryinventory.repository.IngredientRepository;
 import com.bakery.bakeryinventory.repository.InventoryRepository;
-import com.bakery.bakeryinventory.repository.ReceiptRepository;
+import com.bakery.bakeryinventory.repository.InboundRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,10 +19,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 @SpringBootTest
-class ReceiptServiceTest {
+class InboundServiceTest {
 
     @Autowired
-    private ReceiptService receiptService;
+    private InboundService inboundService;
 
     @Autowired
     private IngredientRepository ingredientRepository;
@@ -31,11 +31,11 @@ class ReceiptServiceTest {
     private InventoryRepository inventoryRepository;
 
     @MockitoSpyBean
-    private ReceiptRepository receiptRepository;
+    private InboundRepository inboundRepository;
 
     private Long ingredientId;
     private Long inventoryId;
-    private Long receiptId;
+    private Long inboundId;
 
     /*
      테스트마다 재료와 초기 재고 5를 새로 저장한다.
@@ -58,8 +58,8 @@ class ReceiptServiceTest {
      */
     @AfterEach
     void tearDown() {
-        if (receiptId != null) {
-            receiptRepository.deleteById(receiptId);
+        if (inboundId != null) {
+            inboundRepository.deleteById(inboundId);
         }
 
         if (inventoryId != null) {
@@ -78,23 +78,23 @@ class ReceiptServiceTest {
      기대 결과: 입고 기록 1건 추가, 최종 재고 15
      */
     @Test
-    void createReceipt_shouldSaveReceiptAndIncreaseStock() {
-        long countBefore = receiptRepository.count();
+    void createInbound_shouldSaveInboundAndIncreaseStock() {
+        long countBefore = inboundRepository.count();
 
-        Receipt receipt = receiptService.createReceipt(ingredientId, 10);
-        receiptId = receipt.getId();
+        Inbound inbound = inboundService.createInbound(ingredientId, 10);
+        inboundId = inbound.getId();
 
         Inventory savedInventory = inventoryRepository.findById(inventoryId)
                 .orElseThrow();
 
-        Receipt savedReceipt = receiptRepository.findById(receiptId)
+        Inbound savedInbound = inboundRepository.findById(inboundId)
                 .orElseThrow();
 
         assertEquals(15, savedInventory.getQuantity());
-        assertEquals(10, savedReceipt.getQuantity());
-        assertEquals(ingredientId, savedReceipt.getIngredient().getId());
-        assertNotNull(savedReceipt.getReceivedAt());
-        assertEquals(countBefore + 1, receiptRepository.count());
+        assertEquals(10, savedInbound.getQuantity());
+        assertEquals(ingredientId, savedInbound.getIngredient().getId());
+        assertNotNull(savedInbound.getReceivedAt());
+        assertEquals(countBefore + 1, inboundRepository.count());
     }
 
     /*
@@ -105,8 +105,8 @@ class ReceiptServiceTest {
      기대 결과: 재고 5 유지, 입고 기록 수 유지
      */
     @Test
-    void createReceipt_shouldRollbackStockWhenReceiptSaveFails() {
-        long countBefore = receiptRepository.count();
+    void createInbound_shouldRollbackStockWhenInboundSaveFails() {
+        long countBefore = inboundRepository.count();
 
         doAnswer(invocation -> {
             inventoryRepository.flush();
@@ -114,17 +114,17 @@ class ReceiptServiceTest {
             throw new DataIntegrityViolationException(
                     "테스트용 입고 저장 실패"
             );
-        }).when(receiptRepository).save(any(Receipt.class));
+        }).when(inboundRepository).save(any(Inbound.class));
 
         assertThrows(
                 DataIntegrityViolationException.class,
-                () -> receiptService.createReceipt(ingredientId, 10)
+                () -> inboundService.createInbound(ingredientId, 10)
         );
 
         Inventory savedInventory = inventoryRepository.findById(inventoryId)
                 .orElseThrow();
 
         assertEquals(5, savedInventory.getQuantity());
-        assertEquals(countBefore, receiptRepository.count());
+        assertEquals(countBefore, inboundRepository.count());
     }
 }

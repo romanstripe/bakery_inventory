@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-public class Receipt {
+@Table(name="inbound")
+public class Inbound {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +21,10 @@ public class Receipt {
     @Column(nullable = false)
     private LocalDateTime receivedAt;
 
-    protected Receipt(){
+    protected Inbound(){
     }
 
-    public Receipt(Ingredient ingredient, int quantity, LocalDateTime receivedAt) {
+    public Inbound(Ingredient ingredient, int quantity, LocalDateTime receivedAt) {
         this.ingredient = ingredient;
         this.quantity = quantity;
         this.receivedAt = receivedAt;

@@ -4,6 +4,8 @@ import com.bakery.bakeryinventory.exception.InvalidInventoryQuantityException;
 import com.bakery.bakeryinventory.exception.InventoryNotFoundException;
 import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.repository.InventoryRepository;
+import com.bakery.bakeryinventory.repository.InboundRepository;
+import com.bakery.bakeryinventory.dto.InboundQueryResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,16 +100,16 @@ public class InventoryService {
     반환값: 수량이 차감된 Inventory
     */
     @Transactional
-    public Inventory decreaseQuantity(Long id, int quantity){
+    public Inventory decreaseQuantity(Long id, int quantity) {
 
         Inventory inventory = inventoryRepository.findByIdForUpdate(id)
-                .orElseThrow(()-> new InventoryNotFoundException(
+                .orElseThrow(() -> new InventoryNotFoundException(
                         "Cannot find that item."
                 ));
 
         int newQuantity = inventory.getQuantity() - quantity;
 
-        if(newQuantity < 0){
+        if (newQuantity < 0) {
             throw new InvalidInventoryQuantityException(
                     "stock should not be less than 0."
             );
