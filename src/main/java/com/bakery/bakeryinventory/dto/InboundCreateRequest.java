@@ -1,10 +1,9 @@
 package com.bakery.bakeryinventory.dto;
 
-import com.bakery.bakeryinventory.model.Ingredient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-public class ReceiptCreateRequest {
+public class InboundCreateRequest {
 
     @NotNull
     @Positive

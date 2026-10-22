@@ -1,8 +1,8 @@
 package com.bakery.bakeryinventory.controller;
 
-import com.bakery.bakeryinventory.dto.ReceiptCreateRequest;
-import com.bakery.bakeryinventory.model.Receipt;
-import com.bakery.bakeryinventory.service.ReceiptService;
+import com.bakery.bakeryinventory.dto.InboundCreateRequest;
+import com.bakery.bakeryinventory.model.Inbound;
+import com.bakery.bakeryinventory.service.InboundService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/receipts")
-public class ReceiptController {
+@RequestMapping("/inbounds")
+public class InboundController {
 
-    private final ReceiptService receiptService;
+    private final InboundService inboundService;
 
-    public ReceiptController(ReceiptService receiptService){
-        this.receiptService = receiptService;
+    public InboundController(InboundService inboundService){
+        this.inboundService = inboundService;
     }
 
     /*
@@ -28,23 +28,23 @@ public class ReceiptController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReceiptResponse createReceipt(
-            @Valid @RequestBody ReceiptCreateRequest request
+    public InboundResponse createInbound(
+            @Valid @RequestBody InboundCreateRequest request
     ){
-        Receipt receipt = receiptService.createReceipt(
+        Inbound inbound = inboundService.createInbound(
                 request.getIngredientId(),
                 request.getQuantity()
         );
 
-        return new ReceiptResponse(
-                receipt.getId(),
+        return new InboundResponse(
+                inbound.getId(),
                 request.getIngredientId(),
-                receipt.getQuantity(),
-                receipt.getReceivedAt()
+                inbound.getQuantity(),
+                inbound.getReceivedAt()
         );
     }
 
-    public record ReceiptResponse(
+    public record InboundResponse(
             Long id,
             Long ingredientId,
             int quantity,

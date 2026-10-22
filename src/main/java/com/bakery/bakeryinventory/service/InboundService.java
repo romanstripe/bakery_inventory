@@ -2,26 +2,26 @@ package com.bakery.bakeryinventory.service;
 
 import com.bakery.bakeryinventory.exception.InventoryNotFoundException;
 import com.bakery.bakeryinventory.model.Inventory;
-import com.bakery.bakeryinventory.model.Receipt;
+import com.bakery.bakeryinventory.model.Inbound;
 import com.bakery.bakeryinventory.repository.InventoryRepository;
-import com.bakery.bakeryinventory.repository.ReceiptRepository;
+import com.bakery.bakeryinventory.repository.InboundRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
-public class ReceiptService {
+public class InboundService {
 
     private final InventoryRepository inventoryRepository;
-    private final ReceiptRepository receiptRepository;
+    private final InboundRepository inboundRepository;
 
-    public ReceiptService(
+    public InboundService(
             InventoryRepository inventoryRepository,
-            ReceiptRepository receiptRepository
+            InboundRepository inboundRepository
     ){
         this.inventoryRepository = inventoryRepository;
-        this.receiptRepository = receiptRepository;
+        this.inboundRepository = inboundRepository;
     }
 
     /*
@@ -31,10 +31,10 @@ public class ReceiptService {
 
     ingredientId: 입고된 재료의 ID
     quantity: 입고 수량
-    반환값: 저장된 Receipt
+    반환값: 저장된 Inbound
      */
     @Transactional
-    public Receipt createReceipt(Long ingredientId, int quantity){
+    public Inbound createInbound(Long ingredientId, int quantity){
         Inventory inventory = inventoryRepository
                 .findByIdForUpdate(ingredientId)
                 .orElseThrow(() -> new InventoryNotFoundException(
@@ -43,12 +43,12 @@ public class ReceiptService {
 
         inventory.setQuantity(inventory.getQuantity() + quantity);
 
-        Receipt receipt = new Receipt(
+        Inbound inbound = new Inbound(
                 inventory.getIngredient(),
                 quantity,
                 LocalDateTime.now()
         );
 
-        return receiptRepository.save(receipt);
+        return inboundRepository.save(inbound);
     }
 }
