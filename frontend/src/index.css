@@ -298,6 +298,8 @@ select {
 /* ---------- 폼 카드 (Form Validation > Form / Content / Section) ---------- */
 .form-card {
   padding: 0;
+  /* 재료 추천 목록이 카드 아래로 펼쳐질 수 있게 한다. */
+  overflow: visible;
 }
 
 .form-card__section {
@@ -430,6 +432,49 @@ select.field__control {
 .field--error .field__label,
 .field--error .field__help {
   color: var(--ui-red);
+}
+
+/* ---------- 재료 자동완성 목록 (카드와 같은 Elevation Shadow) ---------- */
+.combobox {
+  position: relative;
+}
+
+.combobox__menu {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 280px;
+  margin: 0;
+  padding: 4px 0;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--ui-white);
+  border-radius: var(--radius);
+  box-shadow: var(--elevation-shadow);
+}
+
+.combobox__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.combobox__option:hover,
+.combobox__option[aria-selected='true'] {
+  background: var(--ui-gray-95);
+}
+
+.combobox__option--add {
+  color: var(--ui-blue);
+  font-weight: 700;
 }
 
 /* ---------- 버튼 (Button / Primary, Secondary) ---------- */

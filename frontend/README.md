@@ -8,7 +8,7 @@ Spring Boot 재고관리 API에 연결된 React + TypeScript(Vite) 프론트엔�
 | 화면 | 주소 | 사용 API |
 |---|---|---|
 | 현재 재고 | `#/inventory` | `GET /inventories` |
-| 입고 등록 | `#/inbound/new?ingredientId=1` | `GET /inventories`(재료 목록), `POST /inbounds` |
+| 입고 등록 | `#/inbound/new?ingredientId=1` | `GET /inventories`(재료 추천), `POST /ingredients`(새 재료일 때), `POST /inbounds` |
 | 입고 이력 | `#/inbounds`, `#/inbounds?ingredientId=1` | `GET /inbounds`, `GET /inbounds?ingredientId=` |
 
 ## 실행 방법
@@ -29,11 +29,10 @@ npm run dev
 ```
 
 브라우저에서 http://localhost:5173 을 엽니다.
-재료는 아직 화면에서 등록할 수 없으므로 처음에는 API로 추가합니다.
 
-```bash
-curl -X POST http://localhost:8080/ingredients -H "Content-Type: application/json" -d "{\"name\":\"밀가루\"}"
-```
+입고 등록에서 재료 이름을 입력하면 이름이 포함된 재료를 추천합니다(예: "버" → 버터, 버터밀크).
+목록에 없는 이름이면 재료를 먼저 등록(`POST /ingredients`, 재고 0 생성)한 뒤 입고합니다.
+이름은 앞뒤 공백·대소문자를 무시하고 비교해 같은 재료가 중복 생성되지 않게 합니다.
 
 ## 백엔드 연결 방식
 

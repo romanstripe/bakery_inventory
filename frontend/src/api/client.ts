@@ -2,6 +2,7 @@ import type {
   InboundCreateRequest,
   InboundRecord,
   InboundResponse,
+  Ingredient,
   Inventory,
 } from './types'
 
@@ -55,6 +56,14 @@ async function readErrorMessage(response: Response): Promise<string> {
 
 export function getInventories(): Promise<Inventory[]> {
   return request<Inventory[]>('/inventories')
+}
+
+/** 재료를 등록한다. 백엔드가 수량 0의 재고를 함께 만든다. */
+export function createIngredient(name: string): Promise<Ingredient> {
+  return request<Ingredient>('/ingredients', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  })
 }
 
 export function createInbound(body: InboundCreateRequest): Promise<InboundResponse> {

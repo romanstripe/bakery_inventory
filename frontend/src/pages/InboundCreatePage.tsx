@@ -1,23 +1,28 @@
 import { useState, type FormEvent } from 'react'
-import { createInbound, getInventories } from '../api/client'
+import { createInbound, createIngredient, getInventories } from '../api/client'
 import type { InboundResponse } from '../api/types'
-import { Banner, SectionHeader, SelectField, TextField } from '../components/ui'
+import { IngredientCombobox } from '../components/IngredientCombobox'
+import { Banner, SectionHeader, TextField } from '../components/ui'
 import { useAsync } from '../hooks/useAsync'
 import { buildHref } from '../hooks/useHashRoute'
-import { formatDateTime, formatQuantity } from '../utils/format'
+import { formatDateTime, formatQuantity, normalizeName } from '../utils/format'
 
 // 백엔드 quantity는 Integer(@Positive)라 int 범위를 넘으면 역직렬화에 실패한다.
 const MAX_QUANTITY = 2_147_483_647
+// Ingredient.name 컬럼 기본 길이(varchar 255)
+const MAX_NAME_LENGTH = 255
 
 interface FieldErrors {
-  ingredientId?: string
+  ingredient?: string
   quantity?: string
 }
 
-function validate(ingredientId: string, quantity: string): FieldErrors {
+function validate(name: string, quantity: string): FieldErrors {
   const errors: FieldErrors = {}
-  if (!ingredientId) {
-    errors.ingredientId = '입고할 재료를 선택해 주세요.'
+  if (!name.trim()) {
+    errors.ingredient = '재료 이름을 입력해 주세요.'
+  } else if (name.trim().length > MAX_NAME_LENGTH) {
+    errors.ingredient = `재료 이름은 ${MAX_NAME_LENGTH}자 이하로 입력해 주세요.`
   }
   if (!quantity.trim()) {
     errors.quantity = '입고 수량을 입력해 주세요.'
@@ -31,37 +36,55 @@ function validate(ingredientId: string, quantity: string): FieldErrors {
   return errors
 }
 
+interface Created {
+  result: InboundResponse
+  name: string
+  isNewIngredient: boolean
+}
+
 export function InboundCreatePage({ initialIngredientId }: { initialIngredientId?: string }) {
   const inventories = useAsync(getInventories)
-  const [ingredientId, setIngredientId] = useState(initialIngredientId ?? '')
+  // 사용자가 입력하기 전에는 주소의 ingredientId에 해당하는 재료 이름을 보여준다.
+  const [typedName, setTypedName] = useState<string>()
   const [quantity, setQuantity] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string>()
-  const [created, setCreated] = useState<{ result: InboundResponse; name: string }>()
+  const [created, setCreated] = useState<Created>()
 
-  const options = [...(inventories.data ?? [])].sort((a, b) => a.ingredient.id - b.ingredient.id)
-  const selected = options.find((row) => String(row.ingredient.id) === ingredientId)
-  // 목록에 없는 ID가 주소로 넘어오면 선택하지 않은 상태로 보여준다.
-  const selectValue = inventories.data && !selected ? '' : ingredientId
+  const options = inventories.data ?? []
+  const initialName = options.find((row) => String(row.ingredient.id) === initialIngredientId)?.ingredient.name
+  const name = typedName ?? initialName ?? ''
+  const selected = options.find((row) => normalizeName(row.ingredient.name) === normalizeName(name))
+  const isNew = name.trim() !== '' && !selected
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    const nextErrors = validate(selectValue, quantity)
+    const nextErrors = validate(name, quantity)
     setErrors(nextErrors)
-    if (nextErrors.ingredientId || nextErrors.quantity) return
+    if (nextErrors.ingredient || nextErrors.quantity) return
 
     setSubmitting(true)
     setSubmitError(undefined)
     setCreated(undefined)
     try {
-      const result = await createInbound({
-        ingredientId: Number(selectValue),
-        quantity: Number(quantity),
-      })
-      setCreated({ result, name: selected?.ingredient.name ?? `재료 ${result.ingredientId}` })
-      setQuantity('')
-      inventories.reload()
+      // 목록에 없는 이름이면 재료(재고 0)를 먼저 만들고 그 ID로 입고한다.
+      const ingredient = selected?.ingredient ?? (await createIngredient(name.trim()))
+      try {
+        const result = await createInbound({ ingredientId: ingredient.id, quantity: Number(quantity) })
+        setCreated({ result, name: ingredient.name, isNewIngredient: !selected })
+        setTypedName(ingredient.name)
+        setQuantity('')
+      } catch (error) {
+        // 재료는 이미 등록됐으므로 같은 이름으로 다시 시도하면 기존 재료로 입고된다.
+        throw new Error(
+          selected
+            ? (error as Error).message
+            : `재료 "${ingredient.name}"는 등록됐지만 입고에 실패했습니다. ${(error as Error).message}`,
+        )
+      } finally {
+        inventories.reload()
+      }
     } catch (error) {
       setSubmitError((error as Error).message)
     } finally {
@@ -71,7 +94,10 @@ export function InboundCreatePage({ initialIngredientId }: { initialIngredientId
 
   return (
     <>
-      <SectionHeader title="입고 등록" description="입고된 재료와 수량을 등록하면 재고에 바로 반영됩니다." />
+      <SectionHeader
+        title="입고 등록"
+        description="입고된 재료와 수량을 등록하면 재고에 바로 반영됩니다. 처음 들어온 재료는 이름을 입력해 바로 추가할 수 있습니다."
+      />
       <div className="page-content">
         {created && (
           <Banner
@@ -85,6 +111,7 @@ export function InboundCreatePage({ initialIngredientId }: { initialIngredientId
               </a>
             }
           >
+            {created.isNewIngredient && `새 재료 "${created.name}"를 추가하고 `}
             {created.name} {formatQuantity(created.result.quantity)}개 입고를 등록했습니다. (
             {formatDateTime(created.result.receivedAt)})
           </Banner>
@@ -108,32 +135,26 @@ export function InboundCreatePage({ initialIngredientId }: { initialIngredientId
             <h3 className="heading-2">입고 정보</h3>
             <p className="body-2">모든 항목은 필수입니다.</p>
             <div className="form-card__fields">
-              <SelectField
+              <IngredientCombobox
                 label="재료 *"
-                value={selectValue}
-                onChange={(event) => {
-                  setIngredientId(event.target.value)
-                  setErrors((prev) => ({ ...prev, ingredientId: undefined }))
+                value={name}
+                options={options}
+                onChange={(value) => {
+                  setTypedName(value)
+                  setErrors((prev) => ({ ...prev, ingredient: undefined }))
                 }}
                 disabled={inventories.loading && !inventories.data}
-                error={errors.ingredientId}
+                error={errors.ingredient}
                 help={
                   selected
                     ? `현재 재고 ${formatQuantity(selected.quantity)}개`
-                    : inventories.loading
-                      ? '재료 목록을 불러오는 중입니다…'
-                      : '재고가 등록된 재료만 선택할 수 있습니다.'
+                    : isNew
+                      ? `"${name.trim()}"는 새 재료로 추가된 뒤 입고됩니다.`
+                      : inventories.loading
+                        ? '재료 목록을 불러오는 중입니다…'
+                        : '이름을 입력하면 등록된 재료를 추천합니다.'
                 }
-              >
-                <option value="" disabled>
-                  재료 선택
-                </option>
-                {options.map((row) => (
-                  <option key={row.ingredient.id} value={row.ingredient.id}>
-                    {row.ingredient.name}
-                  </option>
-                ))}
-              </SelectField>
+              />
               <TextField
                 label="입고 수량 *"
                 inputMode="numeric"
@@ -150,7 +171,7 @@ export function InboundCreatePage({ initialIngredientId }: { initialIngredientId
           </div>
           <div className="form-card__actions">
             <button type="submit" className="button button--primary label-2" disabled={submitting}>
-              {submitting ? '등록 중…' : '입고 등록'}
+              {submitting ? '등록 중…' : isNew ? '재료 추가 후 입고' : '입고 등록'}
             </button>
             <a className="button button--secondary label-2" href={buildHref('/inventory')}>
               재고로 돌아가기

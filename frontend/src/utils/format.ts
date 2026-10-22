@@ -1,5 +1,10 @@
 const numberFormat = new Intl.NumberFormat('ko-KR')
 
+/** 재료 이름 비교용: 앞뒤 공백과 대소문자를 무시한다. */
+export function normalizeName(name: string): string {
+  return name.trim().toLowerCase()
+}
+
 export function formatQuantity(quantity: number): string {
   return numberFormat.format(quantity)
 }
