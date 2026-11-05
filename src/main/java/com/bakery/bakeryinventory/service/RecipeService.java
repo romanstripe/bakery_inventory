@@ -6,6 +6,7 @@ import com.bakery.bakeryinventory.dto.RecipeIngredientRequest;
 import com.bakery.bakeryinventory.dto.RecipeDetailResponse;
 import com.bakery.bakeryinventory.exception.InvalidRecipeException;
 import com.bakery.bakeryinventory.model.Ingredient;
+import com.bakery.bakeryinventory.model.Outbound;
 import com.bakery.bakeryinventory.model.Recipe;
 import com.bakery.bakeryinventory.model.RecipeIngredient;
 import com.bakery.bakeryinventory.repository.IngredientRepository;
@@ -15,10 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Sort;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 @Service
 public class RecipeService {
@@ -26,15 +26,18 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final IngredientRepository ingredientRepository;
+    private final OutboundService outboundService;
 
     public RecipeService(
             RecipeRepository recipeRepository,
             RecipeIngredientRepository recipeIngredientRepository,
-            IngredientRepository ingredientRepository
+            IngredientRepository ingredientRepository,
+            OutboundService outboundService
     ) {
         this.recipeRepository = recipeRepository;
         this.recipeIngredientRepository = recipeIngredientRepository;
         this.ingredientRepository = ingredientRepository;
+        this.outboundService = outboundService;
     }
 
     /*
@@ -112,5 +115,48 @@ public class RecipeService {
                     ingredients
             );
         });
+    }
+
+    /*
+    레시피의 1배합 사용량에 배합 수를 곱해 재료별 출고를 등록한다.
+    재료 하나라도 출고에 실패하면 이번 배합의 출고를 전부 취소한다.
+    반환값: 생성된 출고 기록 ID 목록
+     */
+    @Transactional
+    public List<Long> useRecipe(Long recipeId, int batches) {
+        if (batches <= 0) {
+            throw new InvalidRecipeException("배합 수는 1 이상이어야 합니다.");
+        }
+
+        if (!recipeRepository.existsById(recipeId)) {
+            throw new InvalidRecipeException("존재하지 않는 레시피입니다.");
+        }
+
+        List<RecipeIngredient> ingredients = recipeIngredientRepository
+                .findAllWithIngredientByRecipeId(recipeId)
+                .stream()
+                .sorted(Comparator.comparing(item -> item.getIngredient().getId()))
+                .toList();
+
+        if (ingredients.isEmpty()) {
+            throw new InvalidRecipeException("레시피에 등록된 재료가 없습니다.");
+        }
+
+        List<Long> outboundIds = new ArrayList<>();
+
+        for (RecipeIngredient item : ingredients) {
+            int quantity;
+            try {
+                quantity = Math.multiplyExact(item.getQuantity(), batches);
+            } catch (ArithmeticException exception) {
+                throw new InvalidRecipeException("계산된 사용량이 지정 범위를 초과합니다.");
+            }
+
+            Long ingredientId = item.getIngredient().getId();
+            outboundIds.add(
+                    outboundService.createOutbound(ingredientId, quantity).getId()
+            );
+        }
+        return outboundIds;
     }
 }

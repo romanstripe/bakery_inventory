@@ -4,6 +4,7 @@ import com.bakery.bakeryinventory.dto.RecipeCreateRequest;
 import com.bakery.bakeryinventory.model.Recipe;
 import com.bakery.bakeryinventory.service.RecipeService;
 import com.bakery.bakeryinventory.dto.RecipeDetailResponse;
+import com.bakery.bakeryinventory.dto.RecipeUseRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -67,4 +68,25 @@ public class RecipeController {
     ){
         return ResponseEntity.of(recipeService.getRecipe(id));
     }
+
+
+    /*
+    지정한 배합 수만큼 레시피 재료를 일괄 출고한다.
+    반환값: 레시피 ID, 배합 수, 생성된 출고 기록 ID
+     */
+    @PostMapping("/{id}/use")
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecipeUseResponse useRecipe(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody RecipeUseRequest request
+    ){
+        List<Long> outboundIds = recipeService.useRecipe(id, request.batches());
+        return new RecipeUseResponse(id, request.batches(), outboundIds);
+    }
+
+    public record RecipeUseResponse(
+            Long recipeId,
+            int batches,
+            List<Long> outboundIds
+    ){}
 }
