@@ -1,7 +1,9 @@
 package com.bakery.bakeryinventory.service;
 
 import com.bakery.bakeryinventory.dto.RecipeCreateRequest;
+import com.bakery.bakeryinventory.dto.RecipeDetailResponse;
 import com.bakery.bakeryinventory.dto.RecipeIngredientRequest;
+import com.bakery.bakeryinventory.dto.RecipeDetailResponse;
 import com.bakery.bakeryinventory.exception.InvalidRecipeException;
 import com.bakery.bakeryinventory.model.Ingredient;
 import com.bakery.bakeryinventory.model.Recipe;
@@ -11,9 +13,12 @@ import com.bakery.bakeryinventory.repository.RecipeRepository;
 import com.bakery.bakeryinventory.repository.RecipeIngredientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Sort;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecipeService {
@@ -75,5 +80,37 @@ public class RecipeService {
         }
 
         return recipe;
+    }
+
+    /*
+    저장된 레시피 목록을 조회한다.
+     */
+    @Transactional(readOnly = true)
+    public List<Recipe> getRecipes(){
+        return recipeRepository.findAll(Sort.by("id"));
+    }
+
+    /*
+    레시피 ID로 이름과 재료별 1배합 사용량을 조회한다.
+    해당 레시피가 없으면 빈 Optional을 반환한다.
+     */
+    @Transactional(readOnly = true)
+    public Optional<RecipeDetailResponse> getRecipe(Long recipeId){
+        return recipeRepository.findById(recipeId).map(recipe-> {
+            List<RecipeDetailResponse.IngredientItem> ingredients =
+                    recipeIngredientRepository.findAllWithIngredientByRecipeId(recipeId)
+                            .stream()
+                            .map(item -> new RecipeDetailResponse.IngredientItem(
+                                    item.getIngredient().getId(),
+                                    item.getIngredient().getName(),
+                                    item.getQuantity()
+                            )).toList();
+
+            return new RecipeDetailResponse(
+                    recipe.getId(),
+                    recipe.getName(),
+                    ingredients
+            );
+        });
     }
 }

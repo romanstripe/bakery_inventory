@@ -3,9 +3,13 @@ package com.bakery.bakeryinventory.controller;
 import com.bakery.bakeryinventory.dto.RecipeCreateRequest;
 import com.bakery.bakeryinventory.model.Recipe;
 import com.bakery.bakeryinventory.service.RecipeService;
+import com.bakery.bakeryinventory.dto.RecipeDetailResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/recipes")
@@ -41,5 +45,26 @@ public class RecipeController {
             Long id,
             String name
     ) {
+    }
+
+    /*
+    레시피 ID와 이름 목록을 반환한다.
+     */
+    @GetMapping
+    public List<RecipeResponse> getRecipes(){
+        return recipeService.getRecipes().stream()
+                .map(recipe -> new RecipeResponse(recipe.getId(), recipe.getName()))
+                .toList();
+    }
+
+    /*
+    레시피와 재료별 사용량을 반환한다.
+    해당 레시피가 없으면 HTTP 404를 반환한다.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<RecipeDetailResponse> getRecipe(
+            @PathVariable("id") Long id
+    ){
+        return ResponseEntity.of(recipeService.getRecipe(id));
     }
 }
