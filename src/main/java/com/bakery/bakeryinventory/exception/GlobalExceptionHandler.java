@@ -69,4 +69,19 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("message", message));
     }
+
+    /*
+    레시피에 없는 재료나 중복 재료가 지정된 경우 HTTP 400을 반환한다.
+
+    exception: 레시피 등록 검증 예외
+    반환값: 오류 메시지를 담은 응답
+     */
+    @ExceptionHandler(InvalidRecipeException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidRecipe(
+            InvalidRecipeException exception
+    ){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", exception.getMessage()));
+    }
 }
