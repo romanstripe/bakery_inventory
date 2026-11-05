@@ -6,11 +6,13 @@ import com.bakery.bakeryinventory.model.Inventory;
 import com.bakery.bakeryinventory.model.Outbound;
 import com.bakery.bakeryinventory.repository.InventoryRepository;
 import com.bakery.bakeryinventory.repository.OutboundRepository;
+import com.bakery.bakeryinventory.dto.OutboundQueryResponse;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class OutboundService {
@@ -24,7 +26,9 @@ public class OutboundService {
     ){
         this.inventoryRepository = inventoryRepository;
         this.outboundRepository = outboundRepository;
-    }/*
+    }
+
+    /*
      지정한 재료의 재고를 사용 수량만큼 차감하고 출고 기록을 저장한다.
      현재 재고가 부족하면 예외를 발생시킨다.
      재고 변경과 출고 기록 저장을 하나의 트랜잭션으로 처리한다.
@@ -64,5 +68,20 @@ public class OutboundService {
         );
 
         return outboundRepository.save(outbound);
+    }
+
+    /*
+    재료 ID를 생략하면 전체 출고 이력을 최근순으로 조회한다.
+    재료 ID가 있으면 해당 재료의 출고 이력만 반환한다.
+     */
+    @Transactional(readOnly = true)
+    public List<OutboundQueryResponse> getOutbounds(Long ingredientId){
+        List<Outbound> outbounds = ingredientId == null
+                ? outboundRepository.findAllWithIngredient()
+                : outboundRepository.findAllWithIngredientByIngredientId(ingredientId);
+
+        return outbounds.stream()
+                .map(OutboundQueryResponse::from)
+                .toList();
     }
 }
